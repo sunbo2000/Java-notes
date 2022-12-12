@@ -1,0 +1,373 @@
+## 移除元素
+
+描述: 给你一个数组 nums 和一个值 val，你需要 原地 移除所有数值等于 val 的元素，并返回移除后数组的新长度。不要使用额外的数组空间，你必须仅使用 O(1) 额外空间并 原地 修改输入数组。
+
+链接：https://leetcode.cn/problems/remove-element
+
+> 一个指针遍历数组,一个指针指向数组当前下标,当快指针指向的值不等于要移除的元素时将快指针指向的值赋值给慢指针
+
+
+
+```java
+    public int removeElement(int[] nums, int val) {
+        int start = 0;
+        int end = 0;
+        for (; end < nums.length; end++) {
+            if (nums[end] != val) {
+                nums[start++] = nums[end];
+            }
+        }
+
+        return start;
+    }
+```
+
+
+
+## 反转字符串
+
+> 一前一后
+
+```java
+    public void reverseString(char[] s) {
+        int start = 0;
+        int end = s.length - 1;
+        while (start < end) {
+            char temp = s[start];
+            s[start] = s[end];
+            s[end] = temp;
+            start++;
+            end--;
+        }
+    }
+```
+
+
+
+## 替换空格
+
+> 先扩容数组得到替换后的大小(如果可以扩容而不用新建的话),从后往前遍历数组(因为从前往后每填充一个需要往后移动元素),end 指针指向当期下标,start 指针指向原下标往前遍历填充即可
+
+
+
+```java
+   public String replaceSpace(String s) {
+        String str = "%20";
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == ' ') {
+                count++;
+            }
+        }
+
+        int newSize = s.length() + count * 2;
+        char[] newStr = new char[newSize];
+        int end = newSize - 1;
+        int start = s.length() - 1;
+
+        for (; start >= 0; start--) {
+            if (s.charAt(start) != ' ') {
+                newStr[end--] = s.charAt(start);
+            } else {
+                newStr[end--] = '0';
+                newStr[end--] = '2';
+                newStr[end--] = '%';
+            }
+        }
+
+        return String.valueOf(newStr);
+    }
+```
+
+ 
+
+## 去除多余空格
+
+`"  aaa bcd   dd  "` ---> `"aaa bcd dd"`
+
+```java
+ public StringBuilder superTrim(String s) {
+        // System.out.println("ReverseWords.removeSpace() called with: s = [" + s + "]");
+        int start = 0;
+        int end = s.length() - 1;
+        while (s.charAt(start) == ' ') start++;
+        while (s.charAt(end) == ' ') end--;
+        StringBuilder sb = new StringBuilder();
+        while (start <= end) {
+            char c = s.charAt(start);
+            // 不等于空格就添加,等于空格加一次
+            if (c != ' ' || sb.charAt(sb.length() - 1) != ' ') {
+                sb.append(c);
+            }
+            start++;
+        }
+        // System.out.println("ReverseWords.removeSpace returned: sb = [" + sb + "]");
+        return sb;
+    }
+```
+
+
+
+## 删除链表倒数第 n 个结点
+
+> 使用快慢指针法,快指针先走 n 步,再一起走完,删除慢指针后一个元素
+
+
+
+```java
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode virtualHead = new ListNode(0, head);
+        // 前指针
+        ListNode start = virtualHead;
+        // 后指针
+        ListNode end = virtualHead;
+        // 中间隔 n 个结点
+        while (end.next != null && n-- > 0) {
+            end = end.next;
+        }
+
+        while (end.next != null) {
+            end = end.next;
+            start = start.next;
+        }
+        
+        start.next = start.next.next;
+
+        return virtualHead.next;
+    }
+```
+
+
+
+## 链表相交
+
+
+
+> 1. 这里的相交是前面不同,相交后后面结点都相同,将两个链表后对齐,在从对齐后的结点开始遍历,如果有相同结点就有相交 
+>
+>    时间复杂度: O(n+m) 空间复杂度: O(1)
+>
+> 2. 用哈希表先存储链表一的所有结点,再遍历链表二,如果哈希表中有链表二的结点说明相交
+>
+>    时间复杂度: O(n+m) 空间复杂度: O(m)
+
+
+
+对齐:
+
+```java
+   public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        ListNode curA = new ListNode(0, headA);
+        ListNode curB = new ListNode(0, headB);
+
+        int len1 = 0;
+        int len2 = 0;
+
+        while (curA != null) {
+            len1++;
+            curA = curA.next;
+        }
+
+        while (curB != null) {
+            len2++;
+            curB = curB.next;
+        }
+
+        int offset = Math.abs(len1 - len2);
+
+        boolean oneBig = (len1 - len2) > 0;
+        curA = oneBig ? headA : headB;
+        curB = oneBig ? headB : headA;
+
+        while (offset-- > 0) {
+            curA = curA.next;
+        }
+
+        while (curA != null && curB != null) {
+            if (curA == curB) {
+                return curA;
+            }
+            curA = curA.next;
+            curB = curB.next;
+        }
+
+        return null;
+    }
+```
+
+
+
+hash:
+
+```java
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        Set<ListNode> visited = new HashSet<ListNode>();
+        ListNode temp = headA;
+        while (temp != null) {
+            visited.add(temp);
+            temp = temp.next;
+        }
+        temp = headB;
+        while (temp != null) {
+            if (visited.contains(temp)) {
+                return temp;
+            }
+            temp = temp.next;
+        }
+        return null;
+    }
+
+```
+
+
+
+## 环形链表
+
+> 这里记住一个规律,利用快慢指针,快指针一次走两步,慢指针一次走一步,如果是环形链表两指针最终必定相遇,如果不是环形链表快指针先走完为null
+>
+> 快指针从相遇处开始,慢指针从头结点开始,逐步后移,最终相遇的点就是入环的第一个结点
+
+
+
+```java
+    public ListNode detectCycle(ListNode head) {
+        ListNode slow = head;
+        ListNode fast = head;
+        
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+            if (fast == slow) {
+                break;
+            }
+        }
+        
+        // 如果快指针为 null 说明没有环
+        if (fast == null || fast.next == null) {
+            return null;
+        }
+        
+        // 慢指针从头开始,快指针从相遇处开始,相遇即为入环点
+        slow = head;
+        while (fast != slow) {
+            fast = fast.next;
+            slow = slow.next;
+        }
+
+        return fast;
+    }
+```
+
+
+
+## 三数之和
+
+排序 + 双指针
+
+> 先考虑三重for循环,时间复杂度是 O(n^3) ,因为最终是求它们的和,考虑将数组进行排序,排序后在遍历,在第一层for循环固定的情况下,如果达到了刚好等于零的情况,那么再次让它等于零只能是第二层往后遍历的同时,第三层的数肯定比它当前的数要小才可以,那第二层和第三层的数是有关联的.可以考虑用双指针分别指向第二层的数和第三层的数,一个从前往后一个从后往前,如果大于零让 left++;如果小于零让 right--; 去重操作也因为有序而变得简单
+
+
+
+```java
+   public List<List<Integer>> threeSum(int[] nums) {
+        int start = 0;
+        int end = nums.length - 1;
+
+        List<List<Integer>> result = new ArrayList<>();
+        Arrays.sort(nums);
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] > 0) {
+                return result;
+            }
+            if (i > 0 && nums[i] == nums[i - 1]) {
+                continue;
+            }
+            start = i + 1;
+            end = nums.length - 1;
+            while (start < end) {
+                if (nums[i] + nums[start] + nums[end] == 0) {
+                    result.add(Arrays.asList(nums[i], nums[start], nums[end]));
+
+                    start++;
+                    end--;
+                    while (start < end && nums[start] == nums[start - 1]) {
+                        start++;
+                    }
+                    while (start < end && nums[end] == nums[end + 1]) {
+                        end--;
+                    }
+                } else if (nums[i] + nums[start] + nums[end] < 0) {
+                    start++;
+                } else {
+                    end--;
+                }
+            }
+        }
+        return result;
+    }
+```
+
+
+
+## 四数之和
+
+> 同三数之和,前两个数字用两层for循环即可
+>
+> 注意的点: 这里给第二重循环去重的时候要注意先决条件是 j > i + 1 不是 j > 0
+>
+> ​         i <= nums.lenght - 4, j <= nums.length - 3
+>
+> 
+
+
+
+```java
+    public List<List<Integer>> fourSum(int[] nums, int target) {
+        if (nums.length < 4) {
+            return Collections.emptyList();
+        }
+        List<List<Integer>> result = new ArrayList<>();
+        int start = 0;
+        int end = nums.length - 1;
+        //西安排序
+        Arrays.sort(nums);
+        for (int i = 0; i <= nums.length - 4; i++) {
+            // 排除一些可能性
+            if ((target > 0 && nums[i] > target) || (target < 0 && nums[i] > 0)) {
+                return result;
+            }
+            if (i > 0 && nums[i] == nums[i - 1]) {
+                continue;
+            }
+            for (int j = i + 1; j <= nums.length - 3; j++) {
+                if (j > i + 1 && nums[j] == nums[j - 1]) {
+                    continue;
+                }
+                start = j + 1;
+                end = nums.length - 1;
+
+                while (start < end) {
+                    if (nums[i] + nums[j] + nums[start] + nums[end] == target) {
+                        result.add(Arrays.asList(nums[i], nums[j], nums[start], nums[end]));
+
+                        start++;
+                        end--;
+                        while (start < end && nums[start] == nums[start - 1]) {
+                            start++;
+                        }
+                        while (start < end && nums[end] == nums[end + 1]) {
+                            end--;
+                        }
+                    } else if (nums[i] + nums[j] + nums[start] + nums[end] < target) {
+                        start++;
+                    } else {
+                        end--;
+                    }
+                }
+
+            }
+        }
+        return result;
+    }
+```
+
